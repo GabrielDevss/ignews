@@ -5,18 +5,18 @@ import { stripe } from "../../services/stripe";
 import { saveSubscription } from "./_lib/managerSubcripition";
 
 async function buffer(readable: Readable) {
-  const chucks = [];
+  const chunks = [];
 
-  for await (const chuck of readable) {
-    chucks.push(
-      typeof chuck === 'string' ? Buffer.from(chuck) : chuck);
+  for await (const chunk of readable) {
+    chunks.push(
+      typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
   }
-  return Buffer.concat(chucks);
+  return Buffer.concat(chunks);
 }
 
 export const config = {
   api: {
-    bodypart: false
+    bodyParser: false
   }
 }
 
@@ -27,13 +27,13 @@ const relevantEvents = new Set([
 export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (req.method === 'POST') {
-    const buf = await buffer(req);
+    const buf = await buffer(req)
     const secret = req.headers['stripe-segnature']
 
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(buf, secret, process.env.STRIPE_WEBHOOK_SECRET)
+      event = stripe.webhooks.constructEvent(buf, secret, process.env.STRIPE_WEBHOOK_SECRET);
     } catch (err) {
       return res.status(400).send(`WebHook error: ${err.message}`);
     }
